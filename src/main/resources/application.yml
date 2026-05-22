@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: gym
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+server:
+    port: 8080

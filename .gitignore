@@ -1,0 +1,67 @@
+# Recommended .gitignore for a Maven + IntelliJ project
+
+# Maven target directory
+/target/
+
+# Maven wrapper - commit these so mvnw works for others
+!/.mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.properties
+
+# Wrapper scripts (keep these in repo)
+/mvnw
+/mvnw.cmd
+
+# IntelliJ IDEA
+/.idea/
+# If you want to share some IDEA settings, un-ignore specific folders, e.g.:
+# !.idea/codeStyles/
+# !.idea/inspectionProfiles/
+*.iws
+*.iml
+*.ipr
+
+### STS / Eclipse / NetBeans ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*~
+
+# Compiled class files
+*.class
+
+# Environment and secret files (do not commit credentials)
+.env
+.env.local
+
+# Maven extras
+dependency-reduced-pom.xml
+release.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+
+# Keep .gitignore tracked
+!.gitignore
+
