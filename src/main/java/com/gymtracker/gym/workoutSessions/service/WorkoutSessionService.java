@@ -2,6 +2,7 @@ package com.gymtracker.gym.workoutSessions.service;
 
 import com.gymtracker.gym.exceptions.ConflictException;
 import com.gymtracker.gym.exceptions.NotFoundException;
+import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogResponse;
 import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionRequest;
 import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionResponse;
 import com.gymtracker.gym.workoutSessions.model.WorkoutSession;
@@ -68,11 +69,24 @@ public class WorkoutSessionService {
 
     @Transactional
     public Optional<WorkoutSessionResponse> getLatestOngoingWorkoutSession() {
-        return workoutSessionRepository.findTopByEndedAtIsNullOrderByStartedAtDesc().map(this::toResponse);
+        return workoutSessionRepository.findOngoingSessionWithLogs().map(this::toResponse);
 
     }
 
     private WorkoutSessionResponse toResponse(WorkoutSession workoutSession) {
+
+        List<ExerciseLogResponse> logs = workoutSession.getExerciseLogs()
+                .stream()
+                .map(log -> ExerciseLogResponse.builder()
+                        .id(log.getId())
+                        .exerciseName(log.getExerciseName())
+                        .setNumber(log.getSetNumber())
+                        .reps(log.getReps())
+                        .weightKg(log.getWeightKg())
+                        .loggedAt(log.getLoggedAt())
+                        .build())
+                .toList();
+
         return WorkoutSessionResponse.builder()
                 .id(workoutSession.getId())
                 .workoutTemplateId(workoutSession.getWorkoutTemplate() != null ? workoutSession.getWorkoutTemplate().getId() : null)
@@ -81,6 +95,7 @@ public class WorkoutSessionService {
                 .endedAt(workoutSession.getEndedAt())
                 .durationSeconds(workoutSession.getDurationSeconds())
                 .notes(workoutSession.getNotes())
+                .exerciseLogs(logs)
                 .build();
     }
 
