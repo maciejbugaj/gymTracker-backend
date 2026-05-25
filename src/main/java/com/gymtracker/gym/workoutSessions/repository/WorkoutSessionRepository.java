@@ -13,7 +13,7 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
 
     Optional<WorkoutSession> findTopByEndedAtIsNullOrderByStartedAtDesc();
 
-    WorkoutSession findTopByEndedAtIsNotNullOrderByEndedAtDesc();
+    Optional<WorkoutSession> findTopByEndedAtIsNotNullOrderByEndedAtDesc();
 
     @Transactional
     List<WorkoutSession> findAllByOrderByStartedAtDesc();

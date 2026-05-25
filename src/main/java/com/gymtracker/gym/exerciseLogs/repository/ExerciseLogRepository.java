@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> {
 
-    public List<ExerciseLog> findAllByWorkoutSession(WorkoutSession workoutSession);
+    List<ExerciseLog> findAllByWorkoutSession(WorkoutSession workoutSession);
 
     @Query("""
             SELECT e FROM ExerciseLog e

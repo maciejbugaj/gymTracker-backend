@@ -1,5 +1,6 @@
 package com.gymtracker.gym.exerciseLogs.service;
 
+import com.gymtracker.gym.exceptions.NotFoundException;
 import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogRequest;
 import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogResponse;
 import com.gymtracker.gym.exerciseLogs.model.ExerciseLog;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +21,10 @@ public class ExerciseLogService {
     private final ExerciseLogRepository exerciseLogRepository;
     private final WorkoutSessionRepository workoutSessionRepository;
 
+    @Transactional
     public ExerciseLogResponse createNewExerciseLog(ExerciseLogRequest exerciseLogRequest) {
         WorkoutSession workoutSession = workoutSessionRepository.findById(exerciseLogRequest.getWorkoutSessionId())
-                .orElseThrow(() -> new RuntimeException("Workout Session with id:" + exerciseLogRequest.getWorkoutSessionId() + " not found"));
+                .orElseThrow(() -> new NotFoundException("Workout Session with id:" + exerciseLogRequest.getWorkoutSessionId() + " not found"));
 
         int nextSetNumber = exerciseLogRepository.findLatestBySessionAndExerciseName(workoutSession, exerciseLogRequest.getExerciseName())
                 .map(last -> last.getSetNumber() + 1)
@@ -41,22 +42,23 @@ public class ExerciseLogService {
         return toResponse(exerciseLogRepository.save(exerciseLog));
     }
 
+    @Transactional(readOnly = true)
     public List<ExerciseLogResponse> getAllExerciseLogByIdWorkoutSessionId(Long workoutSessionId) {
         WorkoutSession workoutSession = workoutSessionRepository.findById(workoutSessionId)
-                .orElseThrow(() -> new RuntimeException("Workout Session with id:" + workoutSessionId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Workout Session with id:" + workoutSessionId + " not found"));
 
         return exerciseLogRepository.findAllByWorkoutSession(workoutSession).stream().map(this::toResponse).toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ExerciseLogResponse> getPreviousSessionLogsByWorkoutTemplateId (Long workoutTemplateId) {
-        WorkoutSession workoutSession = workoutSessionRepository.findTopByWorkoutTemplateIdAndEndedAtIsNotNullOrderByEndedAtDesc(workoutTemplateId)
-                .orElseThrow(() -> new IllegalArgumentException("Previous workout session with template id: " + workoutTemplateId +" not found"));
-
-        return exerciseLogRepository.findByWorkoutSessionOrderBySetNumberAsc(workoutSession)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return workoutSessionRepository.findTopByWorkoutTemplateIdAndEndedAtIsNotNullOrderByEndedAtDesc(workoutTemplateId)
+                .map(session -> exerciseLogRepository
+                        .findByWorkoutSessionOrderBySetNumberAsc(session)
+                        .stream()
+                        .map(this::toResponse)
+                        .toList())
+                .orElse(List.of());
     }
 
 

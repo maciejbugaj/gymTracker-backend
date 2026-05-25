@@ -4,12 +4,14 @@ import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionRequest;
 import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionResponse;
 import com.gymtracker.gym.workoutSessions.service.WorkoutSessionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
+@NullMarked
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/workout-sessions")
@@ -18,30 +20,40 @@ public class WorkoutSessionController {
     private final WorkoutSessionService workoutSessionService;
 
     @GetMapping
-    public List<WorkoutSessionResponse> getAllWorkoutSessions() {
-        return workoutSessionService.getAllWorkoutSessions();
+    public ResponseEntity<List<WorkoutSessionResponse>> getAllWorkoutSessions() {
+        return ResponseEntity.ok(workoutSessionService.getAllWorkoutSessions());
     }
 
     @PostMapping
-    public WorkoutSessionResponse createWorkoutSession(@RequestBody WorkoutSessionRequest workoutSessionRequest) {
-        return workoutSessionService.createWorkoutSession(workoutSessionRequest);
+    public ResponseEntity<WorkoutSessionResponse> createWorkoutSession(@RequestBody WorkoutSessionRequest workoutSessionRequest) {
+        WorkoutSessionResponse workoutSessionResponse = workoutSessionService.createWorkoutSession(workoutSessionRequest);
+        URI location = URI.create("/api/workout-sessions/" + workoutSessionResponse.getId());
+        return ResponseEntity.created(location).body(workoutSessionResponse);
     }
 
-    @GetMapping
-    @RequestMapping("/last")
-    public WorkoutSessionResponse getLatestWorkoutSession() {
-        return workoutSessionService.getLatestWorkoutSession();
+    @GetMapping("/{workoutSessionId}")
+    public ResponseEntity<WorkoutSessionResponse> getWorkoutSessionById(@PathVariable Long workoutSessionId) {
+        return workoutSessionService.getWorkoutSessionById(workoutSessionId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/last")
+    public ResponseEntity<WorkoutSessionResponse> getLatestWorkoutSession() {
+        return workoutSessionService.getLatestWorkoutSession()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/last/ongoing")
     public ResponseEntity<WorkoutSessionResponse> getLatestOngoingWorkoutSession() {
         return workoutSessionService.getLatestOngoingWorkoutSession().map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.noContent().build());
     }
 
     @PostMapping("/{workoutSessionId}/finish")
-    public WorkoutSessionResponse finishWorkoutSession(@PathVariable Long workoutSessionId) {
-        return workoutSessionService.finishWorkoutSession(workoutSessionId);
+    public ResponseEntity<WorkoutSessionResponse> finishWorkoutSession(@PathVariable Long workoutSessionId) {
+        return ResponseEntity.ok(workoutSessionService.finishWorkoutSession(workoutSessionId));
     }
 
 }
