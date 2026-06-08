@@ -23,7 +23,7 @@ public class ExerciseLogController {
     @PostMapping
     public ResponseEntity<ExerciseLogResponse> createExerciseLog(@Valid @RequestBody ExerciseLogRequest exerciseLogRequest) {
         ExerciseLogResponse exerciseLogResponse = exerciseLogService.createNewExerciseLog(exerciseLogRequest);
-        URI location = URI.create("/api/exercise-log/" + exerciseLogResponse.getId());
+        URI location = URI.create("/api/exercise-logs/" + exerciseLogResponse.id());
         return ResponseEntity.created(location).body(exerciseLogResponse);
     }
 

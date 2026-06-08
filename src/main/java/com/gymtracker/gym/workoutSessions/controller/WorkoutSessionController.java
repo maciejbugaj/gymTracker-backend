@@ -28,7 +28,7 @@ public class WorkoutSessionController {
     @PostMapping
     public ResponseEntity<WorkoutSessionResponse> createWorkoutSession(@Valid @RequestBody WorkoutSessionRequest workoutSessionRequest) {
         WorkoutSessionResponse workoutSessionResponse = workoutSessionService.createWorkoutSession(workoutSessionRequest);
-        URI location = URI.create("/api/workout-sessions/" + workoutSessionResponse.getId());
+        URI location = URI.create("/api/workout-sessions/" + workoutSessionResponse.id());
         return ResponseEntity.created(location).body(workoutSessionResponse);
     }
 

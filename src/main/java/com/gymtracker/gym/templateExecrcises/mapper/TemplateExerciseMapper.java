@@ -3,8 +3,10 @@ package com.gymtracker.gym.templateExecrcises.mapper;
 import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseResponse;
 import com.gymtracker.gym.templateExecrcises.model.TemplateExercise;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TemplateExerciseMapper {
+    @Mapping(source = "defaultWeightKg", target = "defaultWeight")
     TemplateExerciseResponse toResponse(TemplateExercise templateExercise);
 }
