@@ -3,6 +3,7 @@ package com.gymtracker.gym.exerciseLogs.service;
 import com.gymtracker.gym.exceptions.NotFoundException;
 import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogRequest;
 import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogResponse;
+import com.gymtracker.gym.exerciseLogs.mapper.ExerciseLogMapper;
 import com.gymtracker.gym.exerciseLogs.model.ExerciseLog;
 import com.gymtracker.gym.exerciseLogs.repository.ExerciseLogRepository;
 import com.gymtracker.gym.workoutSessions.model.WorkoutSession;
@@ -20,6 +21,7 @@ public class ExerciseLogService {
 
     private final ExerciseLogRepository exerciseLogRepository;
     private final WorkoutSessionRepository workoutSessionRepository;
+    private final ExerciseLogMapper exerciseLogMapper;
 
     @Transactional
     public ExerciseLogResponse createNewExerciseLog(ExerciseLogRequest exerciseLogRequest) {
@@ -39,7 +41,7 @@ public class ExerciseLogService {
                 .workoutSession(workoutSession)
                 .build();
 
-        return toResponse(exerciseLogRepository.save(exerciseLog));
+        return exerciseLogMapper.toResponse(exerciseLogRepository.save(exerciseLog));
     }
 
     @Transactional(readOnly = true)
@@ -47,29 +49,19 @@ public class ExerciseLogService {
         WorkoutSession workoutSession = workoutSessionRepository.findById(workoutSessionId)
                 .orElseThrow(() -> new NotFoundException("Workout Session with id:" + workoutSessionId + " not found"));
 
-        return exerciseLogRepository.findAllByWorkoutSession(workoutSession).stream().map(this::toResponse).toList();
+        return exerciseLogRepository.findAllByWorkoutSession(workoutSession).stream()
+                .map(exerciseLogMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<ExerciseLogResponse> getPreviousSessionLogsByWorkoutTemplateId (Long workoutTemplateId) {
+    public List<ExerciseLogResponse> getPreviousSessionLogsByWorkoutTemplateId(Long workoutTemplateId) {
         return workoutSessionRepository.findTopByWorkoutTemplateIdAndEndedAtIsNotNullOrderByEndedAtDesc(workoutTemplateId)
                 .map(session -> exerciseLogRepository
                         .findByWorkoutSessionOrderBySetNumberAsc(session)
                         .stream()
-                        .map(this::toResponse)
+                        .map(exerciseLogMapper::toResponse)
                         .toList())
                 .orElse(List.of());
-    }
-
-
-    private ExerciseLogResponse toResponse(ExerciseLog exerciseLog) {
-        return ExerciseLogResponse.builder()
-                .id(exerciseLog.getId())
-                .exerciseName(exerciseLog.getExerciseName())
-                .setNumber(exerciseLog.getSetNumber())
-                .reps(exerciseLog.getReps())
-                .weightKg(exerciseLog.getWeightKg())
-                .loggedAt(exerciseLog.getLoggedAt())
-                .build();
     }
 }

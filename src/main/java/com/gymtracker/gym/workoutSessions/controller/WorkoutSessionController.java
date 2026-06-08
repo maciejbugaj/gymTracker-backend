@@ -3,6 +3,7 @@ package com.gymtracker.gym.workoutSessions.controller;
 import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionRequest;
 import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionResponse;
 import com.gymtracker.gym.workoutSessions.service.WorkoutSessionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class WorkoutSessionController {
     }
 
     @PostMapping
-    public ResponseEntity<WorkoutSessionResponse> createWorkoutSession(@RequestBody WorkoutSessionRequest workoutSessionRequest) {
+    public ResponseEntity<WorkoutSessionResponse> createWorkoutSession(@Valid @RequestBody WorkoutSessionRequest workoutSessionRequest) {
         WorkoutSessionResponse workoutSessionResponse = workoutSessionService.createWorkoutSession(workoutSessionRequest);
         URI location = URI.create("/api/workout-sessions/" + workoutSessionResponse.getId());
         return ResponseEntity.created(location).body(workoutSessionResponse);

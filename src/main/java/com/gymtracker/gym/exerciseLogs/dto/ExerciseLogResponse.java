@@ -1,6 +1,5 @@
 package com.gymtracker.gym.exerciseLogs.dto;
 
-import com.gymtracker.gym.workoutSessions.dto.WorkoutSessionResponse;
 import lombok.Builder;
 import lombok.Data;
 
