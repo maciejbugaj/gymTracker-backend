@@ -1,0 +1,7 @@
+target/
+.git/
+.idea/
+*.iml
+compose.yaml
+.vscode/
+*.log
