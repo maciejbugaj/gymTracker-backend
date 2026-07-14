@@ -28,7 +28,7 @@ public class WorkoutSessionService {
 
     @Transactional(readOnly = true)
     public Optional<WorkoutSessionResponse> getWorkoutSessionById(Long workoutSessionId) {
-        return workoutSessionRepository.findById(workoutSessionId).map(workoutSessionMapper::toResponse);
+        return workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(workoutSessionId).map(workoutSessionMapper::toResponse);
     }
 
     @Transactional
@@ -45,7 +45,7 @@ public class WorkoutSessionService {
 
     @Transactional
     public WorkoutSessionResponse finishWorkoutSession(Long workoutSessionId) {
-        WorkoutSession workoutSession = workoutSessionRepository.findById(workoutSessionId)
+        WorkoutSession workoutSession = workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(workoutSessionId)
                 .orElseThrow(() -> new NotFoundException("Workout Session with Id: " + workoutSessionId + " not found"));
 
         if (workoutSession.getEndedAt() != null) {
