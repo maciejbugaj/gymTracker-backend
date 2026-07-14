@@ -67,11 +67,15 @@ public class WorkoutSessionService {
 
     @Transactional(readOnly = true)
     public Optional<WorkoutSessionResponse> getLatestWorkoutSession() {
-        return workoutSessionRepository.findTopByEndedAtIsNotNullOrderByEndedAtDesc().map(workoutSessionMapper::toResponse);
+        return workoutSessionRepository.findTopIdByEndedAtIsNotNullOrderByEndedAtDesc()
+                .flatMap(workoutSessionRepository::findByIdWithExerciseLogsAndTemplate)
+                .map(workoutSessionMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public Optional<WorkoutSessionResponse> getLatestOngoingWorkoutSession() {
-        return workoutSessionRepository.findOngoingSessionWithLogs().map(workoutSessionMapper::toResponse);
+        return workoutSessionRepository.findTopIdByEndedAtIsNullOrderByStartedAtDesc()
+                .flatMap(workoutSessionRepository::findByIdWithExerciseLogsAndTemplate)
+                .map(workoutSessionMapper::toResponse);
     }
 }

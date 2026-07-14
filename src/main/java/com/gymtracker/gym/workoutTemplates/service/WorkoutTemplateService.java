@@ -22,14 +22,14 @@ public class WorkoutTemplateService {
 
     @Transactional(readOnly = true)
     public List<WorkoutTemplateResponse> getAllWorkoutTemplates() {
-        return workoutTemplateRepository.findAll().stream()
+        return workoutTemplateRepository.findAllWithExercises().stream()
                 .map(workoutTemplateMapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public Optional<WorkoutTemplateResponse> getWorkoutTemplateById(Long workoutTemplateId) {
-        return workoutTemplateRepository.findById(workoutTemplateId).map(workoutTemplateMapper::toResponse);
+        return workoutTemplateRepository.findByIdWithExercises(workoutTemplateId).map(workoutTemplateMapper::toResponse);
     }
 
     @Transactional
@@ -43,7 +43,7 @@ public class WorkoutTemplateService {
 
     @Transactional
     public WorkoutTemplateResponse updateWorkoutTemplate(Long workoutTemplateId, WorkoutTemplateRequest request) {
-        WorkoutTemplate workoutTemplate = workoutTemplateRepository.findById(workoutTemplateId)
+        WorkoutTemplate workoutTemplate = workoutTemplateRepository.findByIdWithExercises(workoutTemplateId)
                 .orElseThrow(() -> new NotFoundException("Workout template with id: " + workoutTemplateId + " not found"));
         workoutTemplate.setName(request.getName());
         workoutTemplate.setDescription(request.getDescription());
