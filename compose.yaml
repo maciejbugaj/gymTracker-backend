@@ -10,7 +10,18 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    container_name: gym-keycloak
+    command:
+      [
+        "start-dev"
+      ]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
 #  backend:
 #    build: ./backend
 #    container_name: gym-backend
