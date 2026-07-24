@@ -1,5 +1,6 @@
 package com.gymtracker.gym.workoutTemplates.controller;
 
+import com.gymtracker.gym.users.annotation.CurrentUser;
 import com.gymtracker.gym.workoutTemplates.dto.WorkoutTemplateRequest;
 import com.gymtracker.gym.workoutTemplates.dto.WorkoutTemplateResponse;
 import com.gymtracker.gym.workoutTemplates.service.WorkoutTemplateService;
@@ -21,20 +22,22 @@ public class WorkoutTemplateController {
     private final WorkoutTemplateService workoutTemplateService;
 
     @GetMapping
-    public ResponseEntity<List<WorkoutTemplateResponse>> getAllWorkoutTemplate() {
-        return ResponseEntity.ok(workoutTemplateService.getAllWorkoutTemplates());
+    public ResponseEntity<List<WorkoutTemplateResponse>> getAllWorkoutTemplate(@CurrentUser Long userId) {
+        return ResponseEntity.ok(workoutTemplateService.getAllWorkoutTemplates(userId));
     }
 
     @GetMapping("/{workoutTemplateId}")
-    public ResponseEntity<WorkoutTemplateResponse> getWorkoutTemplateById(@PathVariable Long workoutTemplateId) {
-        return workoutTemplateService.getWorkoutTemplateById(workoutTemplateId)
+    public ResponseEntity<WorkoutTemplateResponse> getWorkoutTemplateById(@PathVariable Long workoutTemplateId,
+                                                                          @CurrentUser Long userId) {
+        return workoutTemplateService.getWorkoutTemplateById(workoutTemplateId, userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<WorkoutTemplateResponse> createWorkoutTemplate(@Valid @RequestBody WorkoutTemplateRequest request) {
-        WorkoutTemplateResponse response = workoutTemplateService.createWorkoutTemplate(request);
+    public ResponseEntity<WorkoutTemplateResponse> createWorkoutTemplate(@Valid @RequestBody WorkoutTemplateRequest request,
+                                                                         @CurrentUser Long userId) {
+        WorkoutTemplateResponse response = workoutTemplateService.createWorkoutTemplate(request, userId);
         URI location = URI.create("/api/workout-templates/" + response.id());
         return ResponseEntity.created(location).body(response);
     }
@@ -42,13 +45,15 @@ public class WorkoutTemplateController {
     @PutMapping("/{workoutTemplateId}")
     public ResponseEntity<WorkoutTemplateResponse> updateWorkoutTemplate(
             @PathVariable Long workoutTemplateId,
-            @Valid @RequestBody WorkoutTemplateRequest request) {
-        return ResponseEntity.ok(workoutTemplateService.updateWorkoutTemplate(workoutTemplateId, request));
+            @Valid @RequestBody WorkoutTemplateRequest request,
+            @CurrentUser Long userId) {
+        return ResponseEntity.ok(workoutTemplateService.updateWorkoutTemplate(workoutTemplateId, request, userId));
     }
 
     @DeleteMapping("/{workoutTemplateId}")
-    public ResponseEntity<Void> deleteWorkoutTemplate(@PathVariable Long workoutTemplateId) {
-        workoutTemplateService.deleteWorkoutTemplate(workoutTemplateId);
+    public ResponseEntity<Void> deleteWorkoutTemplate(@PathVariable Long workoutTemplateId,
+                                                      @CurrentUser Long userId) {
+        workoutTemplateService.deleteWorkoutTemplate(workoutTemplateId, userId);
         return ResponseEntity.noContent().build();
     }
 }

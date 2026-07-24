@@ -1,17 +1,24 @@
 package com.gymtracker.gym.config;
 
+import com.gymtracker.gym.users.resolver.CurrentUserArgumentResolver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-public class WebConfiguration {
+@RequiredArgsConstructor
+public class WebConfiguration implements WebMvcConfigurer {
+
+    private final CurrentUserArgumentResolver currentUserArgumentResolver;
 
     @Value("${cors.allowed-origins:}")
     private String allowedOriginsRaw;
@@ -38,5 +45,10 @@ public class WebConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(currentUserArgumentResolver);
     }
 }

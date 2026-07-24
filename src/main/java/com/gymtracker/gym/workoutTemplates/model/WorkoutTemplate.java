@@ -1,6 +1,7 @@
 package com.gymtracker.gym.workoutTemplates.model;
 
 import com.gymtracker.gym.templateExecrcises.model.TemplateExercise;
+import com.gymtracker.gym.users.model.User;
 import com.gymtracker.gym.workoutSessions.model.WorkoutSession;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,4 +37,6 @@ public class WorkoutTemplate {
     @OneToMany(mappedBy = "workoutTemplate")
     @Builder.Default
     private List<WorkoutSession> sessions = new ArrayList<>();
+
+    private Long userId;
 }
