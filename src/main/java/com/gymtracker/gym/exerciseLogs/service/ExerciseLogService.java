@@ -24,9 +24,11 @@ public class ExerciseLogService {
     private final ExerciseLogMapper exerciseLogMapper;
 
     @Transactional
-    public ExerciseLogResponse createNewExerciseLog(ExerciseLogRequest exerciseLogRequest) {
-        WorkoutSession workoutSession = workoutSessionRepository.findById(exerciseLogRequest.getWorkoutSessionId())
-                .orElseThrow(() -> new NotFoundException("Workout Session with id:" + exerciseLogRequest.getWorkoutSessionId() + " not found"));
+    public ExerciseLogResponse createNewExerciseLog(ExerciseLogRequest exerciseLogRequest, Long userId) {
+        WorkoutSession workoutSession = workoutSessionRepository.findByIdAndUserId(exerciseLogRequest.getWorkoutSessionId(),
+                        userId)
+                .orElseThrow(() -> new NotFoundException("Workout Session with id:" +
+                        exerciseLogRequest.getWorkoutSessionId() + " not found"));
 
         int nextSetNumber = exerciseLogRepository.findLatestBySessionAndExerciseName(workoutSession, exerciseLogRequest.getExerciseName())
                 .map(last -> last.getSetNumber() + 1)
@@ -45,8 +47,9 @@ public class ExerciseLogService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExerciseLogResponse> getAllExerciseLogByIdWorkoutSessionId(Long workoutSessionId) {
-        WorkoutSession workoutSession = workoutSessionRepository.findById(workoutSessionId)
+    public List<ExerciseLogResponse> getAllExerciseLogByIdWorkoutSessionId(Long workoutSessionId, Long userId) {
+        WorkoutSession workoutSession = workoutSessionRepository.findByIdAndUserId(workoutSessionId,
+                        userId)
                 .orElseThrow(() -> new NotFoundException("Workout Session with id:" + workoutSessionId + " not found"));
 
         return exerciseLogRepository.findAllByWorkoutSession(workoutSession).stream()
@@ -55,8 +58,9 @@ public class ExerciseLogService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExerciseLogResponse> getPreviousSessionLogsByWorkoutTemplateId(Long workoutTemplateId) {
-        return workoutSessionRepository.findTopByWorkoutTemplateIdAndEndedAtIsNotNullOrderByEndedAtDesc(workoutTemplateId)
+    public List<ExerciseLogResponse> getPreviousSessionLogsByWorkoutTemplateId(Long workoutTemplateId, Long userId) {
+        return workoutSessionRepository.findTopByWorkoutTemplateIdAndEndedAtIsNotNullAndUserIdOrderByEndedAtDesc(workoutTemplateId,
+                        userId)
                 .map(session -> exerciseLogRepository
                         .findByWorkoutSessionOrderBySetNumberAsc(session)
                         .stream()

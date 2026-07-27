@@ -17,7 +17,7 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
     @Query("SELECT s FROM WorkoutSession s LEFT JOIN FETCH s.exerciseLogs LEFT JOIN FETCH s.workoutTemplate WHERE s.userId = :userId ORDER BY s.startedAt DESC")
     List<WorkoutSession> findAllByOrderByStartedAtDesc(@Param("userId") Long userId);
 
-    Optional<WorkoutSession> findTopByWorkoutTemplateIdAndEndedAtIsNotNullOrderByEndedAtDesc(Long workoutTemplateId);
+    Optional<WorkoutSession> findTopByWorkoutTemplateIdAndEndedAtIsNotNullAndUserIdOrderByEndedAtDesc(Long workoutTemplateId, Long userId);
 
     @Query("SELECT s.id FROM WorkoutSession s WHERE s.endedAt IS NOT NULL AND s.userId = :userId ORDER BY s.endedAt DESC LIMIT 1")
     Optional<Long> findTopIdByEndedAtIsNotNullOrderByEndedAtDesc(@Param("userId") Long userId);
@@ -27,5 +27,7 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
 
     @Query("SELECT s FROM WorkoutSession s LEFT JOIN FETCH s.exerciseLogs LEFT JOIN FETCH s.workoutTemplate WHERE s.id = :id AND s.userId = :userId")
     Optional<WorkoutSession> findByIdWithExerciseLogsAndTemplate(@Param("id") Long id, @Param("userId") Long userId);
+
+    Optional<WorkoutSession> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 }
 
