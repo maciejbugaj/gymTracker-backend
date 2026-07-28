@@ -7,17 +7,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static com.gymtracker.gym.testsupport.IntegrationTestSupport.createTemplateAs;
+import static com.gymtracker.gym.testsupport.IntegrationTestSupport.jwtFor;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,7 +37,7 @@ class WorkoutTemplateControllerIT {
         UUID subA = UUID.randomUUID();
         UUID subB = UUID.randomUUID();
 
-        Long templateId = createTemplateAs(subA, "subA@gmail.com");
+        Long templateId = createTemplateAs(mockMvc, subA, "subA@gmail.com");
 
         mockMvc.perform(get("/api/workout-templates/{id}", templateId)
                         .with(jwtFor(subB, "b@test.com")))
@@ -57,7 +55,7 @@ class WorkoutTemplateControllerIT {
         UUID subA = UUID.randomUUID();
         UUID subB = UUID.randomUUID();
         
-        Long templateId = createTemplateAs(subA, "subA@gmail.com");
+        Long templateId = createTemplateAs(mockMvc, subA, "subA@gmail.com");
 
         mockMvc.perform(delete("/api/workout-templates/{id}", templateId)
                 .with(jwtFor(subB, "b@test.com")))
@@ -69,7 +67,7 @@ class WorkoutTemplateControllerIT {
         UUID subA = UUID.randomUUID();
         UUID subB = UUID.randomUUID();
 
-        Long templateId = createTemplateAs(subA, "subA@gmail.com");
+        Long templateId = createTemplateAs(mockMvc, subA, "subA@gmail.com");
 
         mockMvc.perform(put("/api/workout-templates/{id}", templateId)
                         .with(jwtFor(subB, "b@test.com"))
@@ -79,26 +77,4 @@ class WorkoutTemplateControllerIT {
                                 """))
                 .andExpect(status().isNotFound());
     }
-    
-    private @NotNull Long createTemplateAs(UUID sub, String email) throws Exception {
-        MvcResult createResult = mockMvc.perform(post("/api/workout-templates")
-                        .with(jwtFor(sub, email))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"name":"Push Day","description":"Chest, shoulders, triceps"}
-                                """))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        String location = createResult.getResponse().getHeader("Location");
-        assertThat(location).isNotNull();
-        return Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
-    }
-
-    private static SecurityMockMvcRequestPostProcessors.@NotNull JwtRequestPostProcessor jwtFor(UUID subB, String mail) {
-        return jwt().jwt(jwt -> jwt
-                .claim("sub", subB.toString())
-                .claim("email", mail));
-    }
-
 }
