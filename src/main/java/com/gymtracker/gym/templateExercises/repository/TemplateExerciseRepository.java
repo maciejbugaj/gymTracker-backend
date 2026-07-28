@@ -1,6 +1,6 @@
-package com.gymtracker.gym.templateExecrcises.repository;
+package com.gymtracker.gym.templateExercises.repository;
 
-import com.gymtracker.gym.templateExecrcises.model.TemplateExercise;
+import com.gymtracker.gym.templateExercises.model.TemplateExercise;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

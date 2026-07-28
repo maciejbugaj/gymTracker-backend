@@ -1,8 +1,8 @@
-package com.gymtracker.gym.templateExecrcises.controller;
+package com.gymtracker.gym.templateExercises.controller;
 
-import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseRequest;
-import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseResponse;
-import com.gymtracker.gym.templateExecrcises.service.TemplateExerciseService;
+import com.gymtracker.gym.templateExercises.dto.TemplateExerciseRequest;
+import com.gymtracker.gym.templateExercises.dto.TemplateExerciseResponse;
+import com.gymtracker.gym.templateExercises.service.TemplateExerciseService;
 import com.gymtracker.gym.users.annotation.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

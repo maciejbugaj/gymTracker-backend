@@ -1,7 +1,6 @@
 package com.gymtracker.gym.workoutTemplates.model;
 
-import com.gymtracker.gym.templateExecrcises.model.TemplateExercise;
-import com.gymtracker.gym.users.model.User;
+import com.gymtracker.gym.templateExercises.model.TemplateExercise;
 import com.gymtracker.gym.workoutSessions.model.WorkoutSession;
 import jakarta.persistence.*;
 import lombok.*;

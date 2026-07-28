@@ -1,4 +1,4 @@
-package com.gymtracker.gym.templateExecrcises.model;
+package com.gymtracker.gym.templateExercises.model;
 
 import com.gymtracker.gym.workoutTemplates.model.WorkoutTemplate;
 import jakarta.persistence.*;

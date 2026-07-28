@@ -1,6 +1,6 @@
 package com.gymtracker.gym.workoutTemplates.dto;
 
-import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseResponse;
+import com.gymtracker.gym.templateExercises.dto.TemplateExerciseResponse;
 
 import java.util.List;
 

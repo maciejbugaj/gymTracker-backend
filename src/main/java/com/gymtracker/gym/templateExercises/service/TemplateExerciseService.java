@@ -1,11 +1,11 @@
-package com.gymtracker.gym.templateExecrcises.service;
+package com.gymtracker.gym.templateExercises.service;
 
 import com.gymtracker.gym.exceptions.NotFoundException;
-import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseRequest;
-import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseResponse;
-import com.gymtracker.gym.templateExecrcises.mapper.TemplateExerciseMapper;
-import com.gymtracker.gym.templateExecrcises.model.TemplateExercise;
-import com.gymtracker.gym.templateExecrcises.repository.TemplateExerciseRepository;
+import com.gymtracker.gym.templateExercises.dto.TemplateExerciseRequest;
+import com.gymtracker.gym.templateExercises.dto.TemplateExerciseResponse;
+import com.gymtracker.gym.templateExercises.mapper.TemplateExerciseMapper;
+import com.gymtracker.gym.templateExercises.model.TemplateExercise;
+import com.gymtracker.gym.templateExercises.repository.TemplateExerciseRepository;
 import com.gymtracker.gym.workoutTemplates.model.WorkoutTemplate;
 import com.gymtracker.gym.workoutTemplates.repository.WorkoutTemplateRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.gymtracker.gym.templateExecrcises.dto;
+package com.gymtracker.gym.templateExercises.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
