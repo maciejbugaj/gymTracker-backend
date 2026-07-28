@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Testcontainers
-class UserServiceTest {
+class UserServiceIT {
 
     @Container
     @ServiceConnection

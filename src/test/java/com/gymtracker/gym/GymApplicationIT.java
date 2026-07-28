@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-class GymApplicationTests {
+class GymApplicationIT {
 
     @Container
     @ServiceConnection
