@@ -53,6 +53,21 @@ public class IntegrationTestSupport {
         return Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
     }
 
+    public static @NotNull Long createWorkoutSessionAs(MockMvc mockMvc, UUID sub, String email, Long workoutTemplateId) throws Exception {
+        MvcResult createResult = mockMvc.perform(post("/api/workout-sessions")
+                .with(jwtFor(sub, email))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"workoutTemplateId": %d}
+                        """.formatted(workoutTemplateId)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String location = createResult.getResponse().getHeader("Location");
+        assertThat(location).isNotNull();
+        return Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
+
+    }
+
 
 
 
