@@ -65,11 +65,7 @@ public class IntegrationTestSupport {
         String location = createResult.getResponse().getHeader("Location");
         assertThat(location).isNotNull();
         return Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
-
     }
-
-
-
 
     public static SecurityMockMvcRequestPostProcessors.@NotNull JwtRequestPostProcessor jwtFor(UUID subB, String mail) {
         return jwt().jwt(jwt -> jwt
