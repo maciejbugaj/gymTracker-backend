@@ -27,25 +27,26 @@ public class WorkoutSessionService {
     private final WorkoutSessionMapper workoutSessionMapper;
 
     @Transactional(readOnly = true)
-    public Optional<WorkoutSessionResponse> getWorkoutSessionById(Long workoutSessionId) {
-        return workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(workoutSessionId).map(workoutSessionMapper::toResponse);
+    public Optional<WorkoutSessionResponse> getWorkoutSessionById(Long workoutSessionId, Long userId) {
+        return workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(workoutSessionId, userId).map(workoutSessionMapper::toResponse);
     }
 
     @Transactional
-    public WorkoutSessionResponse createWorkoutSession(WorkoutSessionRequest workoutSessionRequest) {
-        WorkoutTemplate workoutTemplate = workoutTemplateRepository.findById(workoutSessionRequest.getWorkoutTemplateId())
+    public WorkoutSessionResponse createWorkoutSession(WorkoutSessionRequest workoutSessionRequest, Long userId) {
+        WorkoutTemplate workoutTemplate = workoutTemplateRepository.findByIdAndUserId(workoutSessionRequest.getWorkoutTemplateId(), userId)
                 .orElseThrow(() -> new NotFoundException("Template Not Found " + workoutSessionRequest.getWorkoutTemplateId()));
 
         WorkoutSession workoutSession = WorkoutSession.builder()
                 .workoutTemplate(workoutTemplate)
                 .startedAt(LocalDateTime.now())
+                .userId(userId)
                 .build();
         return workoutSessionMapper.toResponse(workoutSessionRepository.save(workoutSession));
     }
 
     @Transactional
-    public WorkoutSessionResponse finishWorkoutSession(Long workoutSessionId) {
-        WorkoutSession workoutSession = workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(workoutSessionId)
+    public WorkoutSessionResponse finishWorkoutSession(Long workoutSessionId, Long userId) {
+        WorkoutSession workoutSession = workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(workoutSessionId, userId)
                 .orElseThrow(() -> new NotFoundException("Workout Session with Id: " + workoutSessionId + " not found"));
 
         if (workoutSession.getEndedAt() != null) {
@@ -59,23 +60,23 @@ public class WorkoutSessionService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkoutSessionResponse> getAllWorkoutSessions() {
-        return workoutSessionRepository.findAllByOrderByStartedAtDesc().stream()
+    public List<WorkoutSessionResponse> getAllWorkoutSessions(Long userId) {
+        return workoutSessionRepository.findAllByOrderByStartedAtDesc(userId).stream()
                 .map(workoutSessionMapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public Optional<WorkoutSessionResponse> getLatestWorkoutSession() {
-        return workoutSessionRepository.findTopIdByEndedAtIsNotNullOrderByEndedAtDesc()
-                .flatMap(workoutSessionRepository::findByIdWithExerciseLogsAndTemplate)
+    public Optional<WorkoutSessionResponse> getLatestWorkoutSession(Long userId) {
+        return workoutSessionRepository.findTopIdByEndedAtIsNotNullOrderByEndedAtDesc(userId)
+                .flatMap((id) -> workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(id,userId))
                 .map(workoutSessionMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public Optional<WorkoutSessionResponse> getLatestOngoingWorkoutSession() {
-        return workoutSessionRepository.findTopIdByEndedAtIsNullOrderByStartedAtDesc()
-                .flatMap(workoutSessionRepository::findByIdWithExerciseLogsAndTemplate)
+    public Optional<WorkoutSessionResponse> getLatestOngoingWorkoutSession(Long userId) {
+        return workoutSessionRepository.findTopIdByEndedAtIsNullOrderByStartedAtDesc(userId)
+                .flatMap((Long id) -> workoutSessionRepository.findByIdWithExerciseLogsAndTemplate(id, userId))
                 .map(workoutSessionMapper::toResponse);
     }
 }

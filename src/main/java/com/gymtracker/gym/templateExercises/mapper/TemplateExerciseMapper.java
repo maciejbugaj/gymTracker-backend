@@ -1,7 +1,7 @@
-package com.gymtracker.gym.templateExecrcises.mapper;
+package com.gymtracker.gym.templateExercises.mapper;
 
-import com.gymtracker.gym.templateExecrcises.dto.TemplateExerciseResponse;
-import com.gymtracker.gym.templateExecrcises.model.TemplateExercise;
+import com.gymtracker.gym.templateExercises.dto.TemplateExerciseResponse;
+import com.gymtracker.gym.templateExercises.model.TemplateExercise;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

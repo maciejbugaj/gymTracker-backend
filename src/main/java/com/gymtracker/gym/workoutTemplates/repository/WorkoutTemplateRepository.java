@@ -14,10 +14,15 @@ import java.util.Optional;
 @Repository
 public interface WorkoutTemplateRepository extends JpaRepository<WorkoutTemplate, Long> {
 
-    @Query("SELECT wt FROM WorkoutTemplate wt LEFT JOIN FETCH wt.exercises")
-    List<WorkoutTemplate> findAllWithExercises();
+    @Query("SELECT wt FROM WorkoutTemplate wt LEFT JOIN FETCH wt.exercises WHERE wt.userId = :userId")
+    List<WorkoutTemplate> findAllWithExercises(@Param("userId") Long userId);
 
-    @Query("SELECT wt FROM WorkoutTemplate wt LEFT JOIN FETCH wt.exercises WHERE wt.id = :workoutTemplateId")
-    Optional<WorkoutTemplate> findByIdWithExercises(@Param("workoutTemplateId") Long workoutTemplateId);
+    @Query("SELECT wt FROM WorkoutTemplate wt LEFT JOIN FETCH wt.exercises WHERE wt.id = :workoutTemplateId AND wt.userId = :userId")
+    Optional<WorkoutTemplate> findByIdWithExercises(@Param("workoutTemplateId") Long workoutTemplateId, @Param("userId") Long userId);
 
+    boolean existsByIdAndUserId(Long workoutTemplateId, Long userId);
+
+    void deleteByIdAndUserId(Long workoutTemplateId, Long userId);
+
+    Optional<WorkoutTemplate> findByIdAndUserId(Long workoutTemplateId, Long userId);
 }

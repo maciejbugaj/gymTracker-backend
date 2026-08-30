@@ -1,4 +1,4 @@
-package com.gymtracker.gym.templateExecrcises.dto;
+package com.gymtracker.gym.templateExercises.dto;
 
 import java.math.BigDecimal;
 

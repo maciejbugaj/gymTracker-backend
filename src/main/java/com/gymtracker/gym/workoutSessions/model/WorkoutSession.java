@@ -36,4 +36,6 @@ public class WorkoutSession {
     @OrderBy("loggedAt ASC")
     @Builder.Default
     private List<ExerciseLog> exerciseLogs = new ArrayList<>();
+
+    private Long userId;
 }
