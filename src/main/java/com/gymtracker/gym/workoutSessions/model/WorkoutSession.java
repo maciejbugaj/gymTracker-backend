@@ -1,6 +1,7 @@
 package com.gymtracker.gym.workoutSessions.model;
 
 import com.gymtracker.gym.exerciseLogs.model.ExerciseLog;
+import com.gymtracker.gym.trainingPrograms.model.ProgramDay;
 import com.gymtracker.gym.workoutTemplates.model.WorkoutTemplate;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,4 +39,8 @@ public class WorkoutSession {
     private List<ExerciseLog> exerciseLogs = new ArrayList<>();
 
     private Long userId;
+
+    @ManyToOne
+    @JoinColumn(name = "program_day_id")
+    private ProgramDay programDay;
 }
