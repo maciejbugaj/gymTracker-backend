@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +28,14 @@ public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> 
     Optional<ExerciseLog> findLatestBySessionAndExerciseName(@Param("session")WorkoutSession session, @Param("exerciseName") String exerciseName);
 
     List<ExerciseLog> findByWorkoutSessionOrderBySetNumberAsc(WorkoutSession workoutSession);
+
+    @Query("""
+        SELECT e FROM ExerciseLog e
+        JOIN FETCH e.workoutSession s
+        WHERE s.userId = :userId
+          AND s.endedAt IS NOT NULL
+          AND s.startedAt >= :since
+        ORDER BY e.exerciseName ASC, s.startedAt ASC, e.setNumber ASC
+        """)
+    List<ExerciseLog> findCompletedSetsForUserSince(@Param("userId") Long userId, @Param("since") LocalDateTime since);
 }
