@@ -29,6 +29,9 @@ public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> 
 
     List<ExerciseLog> findByWorkoutSessionOrderBySetNumberAsc(WorkoutSession workoutSession);
 
+    List<ExerciseLog> findByWorkoutSessionAndExerciseNameOrderBySetNumberAsc(WorkoutSession workoutSession,
+                                                                            String exerciseName);
+
     @Query("""
         SELECT e FROM ExerciseLog e
         JOIN FETCH e.workoutSession s
@@ -39,15 +42,21 @@ public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> 
         """)
     List<ExerciseLog> findCompletedSetsForUserSince(@Param("userId") Long userId, @Param("since") LocalDateTime since);
 
-    // For "previous" on a program day: the most recent set ever logged for this exercise name,
-    // regardless of which session/template it came from (unlike findLatestBySessionAndExerciseName,
-    // which is scoped to one specific session).
+    // For "previous" on a program day: the most recent session in which this user logged this
+    // exercise name at all, regardless of which template/program day it came from.
     @Query("""
-            SELECT e FROM ExerciseLog e
-            WHERE e.workoutSession.userId = :userId AND e.exerciseName = :exerciseName
+            SELECT e.workoutSession.id FROM ExerciseLog e
+            WHERE e.workoutSession.userId = :userId
+              AND e.exerciseName = :exerciseName
+              AND e.workoutSession.endedAt IS NOT NULL
             ORDER BY e.loggedAt DESC
             LIMIT 1
             """)
-    Optional<ExerciseLog> findLatestByUserIdAndExerciseName(@Param("userId") Long userId,
-                                                             @Param("exerciseName") String exerciseName);
+    Optional<Long> findLatestSessionIdByUserIdAndExerciseName(@Param("userId") Long userId,
+                                                              @Param("exerciseName") String exerciseName);
+
+    // ...and every set of that exercise from that one session, so the set table can show a
+    // per-row "previous" instead of a single last set.
+    List<ExerciseLog> findByWorkoutSessionIdAndExerciseNameOrderBySetNumberAsc(Long workoutSessionId,
+                                                                              String exerciseName);
 }
