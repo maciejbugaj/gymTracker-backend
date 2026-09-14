@@ -53,6 +53,12 @@ public class WorkoutSessionController {
                 .orElse(ResponseEntity.noContent().build());
     }
 
+    @DeleteMapping("/{workoutSessionId}")
+    public ResponseEntity<Void> discardWorkoutSession(@PathVariable Long workoutSessionId, @CurrentUser Long userId) {
+        workoutSessionService.discardWorkoutSession(workoutSessionId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{workoutSessionId}/finish")
     public ResponseEntity<WorkoutSessionResponse> finishWorkoutSession(@PathVariable Long workoutSessionId, @CurrentUser Long userId) {
         return ResponseEntity.ok(workoutSessionService.finishWorkoutSession(workoutSessionId, userId));

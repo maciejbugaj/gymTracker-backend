@@ -2,6 +2,7 @@ package com.gymtracker.gym.exerciseLogs.controller;
 
 import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogRequest;
 import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogResponse;
+import com.gymtracker.gym.exerciseLogs.dto.ReorderExerciseLogsRequest;
 import com.gymtracker.gym.exerciseLogs.service.ExerciseLogService;
 import com.gymtracker.gym.users.annotation.CurrentUser;
 import jakarta.validation.Valid;
@@ -27,6 +28,19 @@ public class ExerciseLogController {
         ExerciseLogResponse exerciseLogResponse = exerciseLogService.createNewExerciseLog(exerciseLogRequest, userId);
         URI location = URI.create("/api/exercise-logs/" + exerciseLogResponse.id());
         return ResponseEntity.created(location).body(exerciseLogResponse);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteExerciseLog(@PathVariable Long id, @CurrentUser Long userId) {
+        exerciseLogService.deleteExerciseLog(id, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/order")
+    public ResponseEntity<Void> reorderExerciseLogs(@Valid @RequestBody ReorderExerciseLogsRequest request,
+                                                    @CurrentUser Long userId) {
+        exerciseLogService.reorderExerciseLogs(request, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{workoutSessionId}")

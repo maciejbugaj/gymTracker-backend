@@ -21,6 +21,9 @@ public class ExerciseLogRequest {
     private Long workoutSessionId;
     @NotBlank
     private String exerciseName;
+    /** Row position in the client's set table. When null the server falls back to "last + 1". */
+    @Positive
+    private Integer setNumber;
     @PositiveOrZero
     private Integer reps;
     @PositiveOrZero
