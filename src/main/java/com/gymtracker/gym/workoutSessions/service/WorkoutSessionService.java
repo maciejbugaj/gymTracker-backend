@@ -69,6 +69,22 @@ public class WorkoutSessionService {
         return workoutSessionMapper.toResponse(workoutSessionRepository.save(workoutSession));
     }
 
+    /**
+     * Throws away a session the user never meant to start, together with anything already logged
+     * in it. Only sessions still in progress can be discarded — a finished one is history.
+     */
+    @Transactional
+    public void discardWorkoutSession(Long workoutSessionId, Long userId) {
+        WorkoutSession workoutSession = workoutSessionRepository.findByIdAndUserId(workoutSessionId, userId)
+                .orElseThrow(() -> new NotFoundException("Workout Session with Id: " + workoutSessionId + " not found"));
+
+        if (workoutSession.getEndedAt() != null) {
+            throw new ConflictException("Workout session already finished, it can no longer be discarded: " + workoutSessionId);
+        }
+
+        workoutSessionRepository.delete(workoutSession);
+    }
+
     @Transactional(readOnly = true)
     public List<WorkoutSessionResponse> getAllWorkoutSessions(Long userId) {
         return workoutSessionRepository.findAllByOrderByStartedAtDesc(userId).stream()

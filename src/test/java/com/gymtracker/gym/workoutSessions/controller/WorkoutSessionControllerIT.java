@@ -77,4 +77,69 @@ class WorkoutSessionControllerIT {
                         .with(jwtFor(subB, "subb@gmail.com")))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void userBCannotDiscardUserAWorkoutSession() throws Exception {
+        UUID subA = UUID.randomUUID();
+        UUID subB = UUID.randomUUID();
+        String subAEmail = "suba@gmail.com";
+
+        Long templateId = createTemplateAs(mockMvc, subA, subAEmail);
+        Long workoutSessionId = createWorkoutSessionAs(mockMvc, subA, subAEmail, templateId);
+
+        mockMvc.perform(delete("/api/workout-sessions/{id}", workoutSessionId)
+                        .with(jwtFor(subB, "subb@gmail.com")))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/api/workout-sessions/{id}", workoutSessionId)
+                        .with(jwtFor(subA, subAEmail)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void discardingAnOngoingSessionRemovesItAndItsLogs() throws Exception {
+        UUID sub = UUID.randomUUID();
+        String email = "sub@gmail.com";
+
+        Long templateId = createTemplateAs(mockMvc, sub, email);
+        Long workoutSessionId = createWorkoutSessionAs(mockMvc, sub, email, templateId);
+
+        mockMvc.perform(post("/api/exercise-logs")
+                        .with(jwtFor(sub, email))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"workoutSessionId":%d,"exerciseName":"Bench Press","setNumber":1,"reps":5,"weightKg":100}
+                                """.formatted(workoutSessionId)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/workout-sessions/{id}", workoutSessionId)
+                        .with(jwtFor(sub, email)))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/workout-sessions/{id}", workoutSessionId)
+                        .with(jwtFor(sub, email)))
+                .andExpect(status().isNotFound());
+
+        // with nothing in progress the home screen is free to start another session
+        mockMvc.perform(get("/api/workout-sessions/last/ongoing")
+                        .with(jwtFor(sub, email)))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void aFinishedSessionCannotBeDiscarded() throws Exception {
+        UUID sub = UUID.randomUUID();
+        String email = "sub@gmail.com";
+
+        Long templateId = createTemplateAs(mockMvc, sub, email);
+        Long workoutSessionId = createWorkoutSessionAs(mockMvc, sub, email, templateId);
+
+        mockMvc.perform(post("/api/workout-sessions/{id}/finish", workoutSessionId)
+                        .with(jwtFor(sub, email)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/api/workout-sessions/{id}", workoutSessionId)
+                        .with(jwtFor(sub, email)))
+                .andExpect(status().isConflict());
+    }
 }
