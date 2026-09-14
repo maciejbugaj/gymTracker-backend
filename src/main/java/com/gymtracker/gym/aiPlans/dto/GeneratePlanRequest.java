@@ -1,17 +1,17 @@
 package com.gymtracker.gym.aiPlans.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
-/**
- * Placeholder shape — Etap 4 will likely tighten this (enums for goal/splitPreference,
- * Bean Validation annotations) once the generator form/controller are built.
- */
 public record GeneratePlanRequest(
-        String goal,
+        @NotBlank String goal,
         String experienceLevel,
-        int daysPerWeek,
-        int durationWeeks,
-        int sessionLengthMinutes,
+        @Min(1) @Max(7) int daysPerWeek,
+        @Min(1) @Max(52) int durationWeeks,
+        @Min(10) @Max(240) int sessionLengthMinutes,
         List<String> equipment,
         String splitPreference,
         List<String> focusMuscleGroups,

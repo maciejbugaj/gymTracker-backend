@@ -62,6 +62,17 @@ public class StubWorkoutPlanAiClient implements WorkoutPlanAiClient {
         return new GeneratedDay(dayNumber, "Day " + dayNumber, null, exercises);
     }
 
+    @Override
+    public AiGenerationResult regenerate(GeneratePlanRequest request, TrainingHistorySummary history,
+                                          GeneratedProgram previousProgram, String feedback) {
+        GeneratedProgram program = generate(request, history).program();
+        GeneratedProgram withFeedbackNote = new GeneratedProgram(
+                program.name(), program.description(), program.goal(), program.durationWeeks(),
+                program.daysPerWeek(), program.weeks(),
+                program.coachNotes() + " Feedback noted: " + feedback);
+        return new AiGenerationResult(withFeedbackNote, 0, 0);
+    }
+
     private ProgramGoal parseGoal(String goal) {
         if (goal == null) {
             return ProgramGoal.GENERAL;

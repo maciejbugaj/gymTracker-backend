@@ -6,6 +6,7 @@ import com.gymtracker.gym.aiPlans.history.TrainingHistorySummary.BestSet;
 import com.gymtracker.gym.aiPlans.history.TrainingHistorySummary.ExerciseHistory;
 import com.gymtracker.gym.aiPlans.history.TrainingHistorySummary.Trend;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkoutPlanPromptBuilderTest {
 
-    private final WorkoutPlanPromptBuilder promptBuilder = new WorkoutPlanPromptBuilder();
+    private final WorkoutPlanPromptBuilder promptBuilder = new WorkoutPlanPromptBuilder(new ObjectMapper());
 
     @Test
     void systemPromptMentionsDeloadGuidance() {

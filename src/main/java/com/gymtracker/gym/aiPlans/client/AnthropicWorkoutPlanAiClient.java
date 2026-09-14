@@ -23,12 +23,22 @@ public class AnthropicWorkoutPlanAiClient implements WorkoutPlanAiClient {
 
     @Override
     public AiGenerationResult generate(GeneratePlanRequest request, TrainingHistorySummary history) {
+        return call(promptBuilder.buildUserPrompt(request, history));
+    }
+
+    @Override
+    public AiGenerationResult regenerate(GeneratePlanRequest request, TrainingHistorySummary history,
+                                          GeneratedProgram previousProgram, String feedback) {
+        return call(promptBuilder.buildRegenerationUserPrompt(request, history, previousProgram, feedback));
+    }
+
+    private AiGenerationResult call(String userPrompt) {
         StructuredMessageCreateParams<GeneratedProgram> params = MessageCreateParams.builder()
                 .model(aiProperties.model())
                 .maxTokens((long) aiProperties.maxTokens())
                 .outputConfig(GeneratedProgram.class)
                 .system(promptBuilder.buildSystemPrompt())
-                .addUserMessage(promptBuilder.buildUserPrompt(request, history))
+                .addUserMessage(userPrompt)
                 .build();
 
         var response = anthropicClient.messages().create(params);

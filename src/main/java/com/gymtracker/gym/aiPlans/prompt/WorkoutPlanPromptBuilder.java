@@ -1,14 +1,20 @@
 package com.gymtracker.gym.aiPlans.prompt;
 
 import com.gymtracker.gym.aiPlans.dto.GeneratePlanRequest;
+import com.gymtracker.gym.aiPlans.generated.GeneratedProgram;
 import com.gymtracker.gym.aiPlans.history.TrainingHistorySummary;
 import com.gymtracker.gym.aiPlans.history.TrainingHistorySummary.ExerciseHistory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.temporal.ChronoUnit;
 
 @Component
+@RequiredArgsConstructor
 public class WorkoutPlanPromptBuilder {
+
+    private final ObjectMapper objectMapper;
 
     private static final String SYSTEM_PROMPT = """
             You are an experienced strength & conditioning coach who designs safe, progressive, \
@@ -41,6 +47,21 @@ public class WorkoutPlanPromptBuilder {
         prompt.append('\n');
         appendHistory(prompt, history);
         return prompt.toString();
+    }
+
+    public String buildRegenerationUserPrompt(GeneratePlanRequest request, TrainingHistorySummary history,
+                                               GeneratedProgram previousProgram, String feedback) {
+        StringBuilder prompt = new StringBuilder(buildUserPrompt(request, history));
+        prompt.append("\nThe athlete already received the following program and asked for changes:\n");
+        prompt.append(writeJson(previousProgram)).append('\n');
+        prompt.append("\nRequested changes:\n").append(feedback).append('\n');
+        prompt.append("\nRegenerate the full program from scratch, applying the requested changes.");
+        return prompt.toString();
+    }
+
+    private String writeJson(GeneratedProgram program) {
+        // Jackson 3's writeValueAsString throws JacksonException, which is unchecked — no try/catch needed.
+        return objectMapper.writeValueAsString(program);
     }
 
     private void appendRequest(StringBuilder prompt, GeneratePlanRequest request) {
