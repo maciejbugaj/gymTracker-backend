@@ -6,6 +6,8 @@ import com.gymtracker.gym.exerciseLogs.dto.ExerciseLogResponse;
 import com.gymtracker.gym.exerciseLogs.mapper.ExerciseLogMapper;
 import com.gymtracker.gym.exerciseLogs.model.ExerciseLog;
 import com.gymtracker.gym.exerciseLogs.repository.ExerciseLogRepository;
+import com.gymtracker.gym.trainingPrograms.model.ProgramDay;
+import com.gymtracker.gym.trainingPrograms.repository.ProgramDayRepository;
 import com.gymtracker.gym.workoutSessions.model.WorkoutSession;
 import com.gymtracker.gym.workoutSessions.repository.WorkoutSessionRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class ExerciseLogService {
 
     private final ExerciseLogRepository exerciseLogRepository;
     private final WorkoutSessionRepository workoutSessionRepository;
+    private final ProgramDayRepository programDayRepository;
     private final ExerciseLogMapper exerciseLogMapper;
 
     @Transactional
@@ -67,5 +71,22 @@ public class ExerciseLogService {
                         .map(exerciseLogMapper::toResponse)
                         .toList())
                 .orElse(List.of());
+    }
+
+    /**
+     * Per exercise in the program day, the most recent set the user ever logged for that exact
+     * exercise name — regardless of which session/template it came from. An exercise the user
+     * has never logged before is simply absent from the result (no entry, not a null one).
+     */
+    @Transactional(readOnly = true)
+    public List<ExerciseLogResponse> getPreviousSetsByProgramDayId(Long programDayId, Long userId) {
+        ProgramDay programDay = programDayRepository.findByIdAndUserId(programDayId, userId)
+                .orElseThrow(() -> new NotFoundException("Program day " + programDayId + " not found"));
+
+        return programDay.getProgramDayExercises().stream()
+                .map(exercise -> exerciseLogRepository.findLatestByUserIdAndExerciseName(userId, exercise.getExerciseName()))
+                .flatMap(Optional::stream)
+                .map(exerciseLogMapper::toResponse)
+                .toList();
     }
 }

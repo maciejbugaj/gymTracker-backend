@@ -36,8 +36,16 @@ public class ExerciseLogController {
     }
 
     @GetMapping("/previous")
-    public ResponseEntity<List<ExerciseLogResponse>> getPreviousSessionLogs(@RequestParam Long workoutTemplateId,
-                                                                            @CurrentUser Long userId) {
-        return ResponseEntity.ok(exerciseLogService.getPreviousSessionLogsByWorkoutTemplateId(workoutTemplateId, userId));
+    public ResponseEntity<List<ExerciseLogResponse>> getPreviousSessionLogs(
+            @RequestParam(required = false) Long workoutTemplateId,
+            @RequestParam(required = false) Long programDayId,
+            @CurrentUser Long userId) {
+        if (programDayId != null) {
+            return ResponseEntity.ok(exerciseLogService.getPreviousSetsByProgramDayId(programDayId, userId));
+        }
+        if (workoutTemplateId != null) {
+            return ResponseEntity.ok(exerciseLogService.getPreviousSessionLogsByWorkoutTemplateId(workoutTemplateId, userId));
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

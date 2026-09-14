@@ -38,4 +38,16 @@ public interface ExerciseLogRepository extends JpaRepository<ExerciseLog, Long> 
         ORDER BY e.exerciseName ASC, s.startedAt ASC, e.setNumber ASC
         """)
     List<ExerciseLog> findCompletedSetsForUserSince(@Param("userId") Long userId, @Param("since") LocalDateTime since);
+
+    // For "previous" on a program day: the most recent set ever logged for this exercise name,
+    // regardless of which session/template it came from (unlike findLatestBySessionAndExerciseName,
+    // which is scoped to one specific session).
+    @Query("""
+            SELECT e FROM ExerciseLog e
+            WHERE e.workoutSession.userId = :userId AND e.exerciseName = :exerciseName
+            ORDER BY e.loggedAt DESC
+            LIMIT 1
+            """)
+    Optional<ExerciseLog> findLatestByUserIdAndExerciseName(@Param("userId") Long userId,
+                                                             @Param("exerciseName") String exerciseName);
 }
