@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @NullMarked
 @Repository
@@ -29,5 +30,14 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
     Optional<WorkoutSession> findByIdWithExerciseLogsAndTemplate(@Param("id") Long id, @Param("userId") Long userId);
 
     Optional<WorkoutSession> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+
+    // Feeds "next uncompleted day of the active program" in TrainingProgramService: one query
+    // for all of the user's completed program-day ids, then the ordered day list is diffed
+    // against it in memory (cheaper than one existsBy... query per day).
+    @Query("""
+            SELECT s.programDay.id FROM WorkoutSession s
+            WHERE s.userId = :userId AND s.programDay IS NOT NULL AND s.endedAt IS NOT NULL
+            """)
+    Set<Long> findCompletedProgramDayIds(@Param("userId") Long userId);
 }
 

@@ -20,3 +20,8 @@ springdoc:
     tags-sorter: alpha
   api-docs:
     path: /v3/api-docs
+
+gymtracker:
+  ai:
+    enabled: true
+    api-key: ${ANTHROPIC_API_KEY:}
