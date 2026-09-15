@@ -154,6 +154,30 @@
             <artifactId>anthropic-java</artifactId>
             <version>2.34.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <exclusions>
+                <!-- kotlin-stdlib ciagnie za soba prastare org.jetbrains:annotations:13.0.
+                     Zadeklarowane wprost, wygralo (Maven: "wygrywa najblizszy") z 17.0.0
+                     z anthropic-java. W 13.0 @NotNull nie ma jeszcze targetu TYPE_USE, wiec
+                     IntegrationTestSupport przestawal sie kompilowac. Kotlin i tak go nie
+                     potrzebuje - stdlib ma wlasne metadane nullability w bytecode. -->
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+        <!-- Jackson 3 (tools.jackson.*) - to jest ten, dla ktorego Boot 4 rejestruje bean. -->
+        <dependency>
+            <groupId>tools.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -171,11 +195,94 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>${kotlin.version}</version>
+				<configuration>
+					<jvmTarget>${java.version}</jvmTarget>
+					<compilerPlugins>
+						<!-- all-open: zdejmuje final z @Component/@Service/@Transactional (Spring robi proxy) -->
+						<plugin>spring</plugin>
+						<!-- no-arg: dorabia bezargumentowy konstruktor do @Entity (wymaga go Hibernate) -->
+						<plugin>jpa</plugin>
+						<!-- lombok: uczy kotlinc czytac adnotacje Lomboka w plikach .java tego modulu -->
+						<plugin>lombok</plugin>
+					</compilerPlugins>
+					<pluginOptions>
+						<option>lombok:config=${project.basedir}/lombok.config</option>
+					</pluginOptions>
+				</configuration>
+				<executions>
+					<execution>
+						<!-- Te same ID co egzekucje z pluginManagement parenta Spring Boota
+						     (compile / test-compile) - NADPISUJEMY je, zamiast dodawac wlasne obok.
+						     Inne ID = Kotlin kompilowalby sie dwa razy przy kazdym buildzie.
+						     Parent binduje je do fazy `compile`; przestawiamy na `process-sources`,
+						     zeby kotlinc szedl jawnie PRZED javac. Kotlin czyta .java jako zrodla,
+						     javac potem widzi gotowe klasy Kotlina w target/classes. -->
+						<id>compile</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<sourceDirs>
+								<sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+								<sourceDir>${project.basedir}/src/main/java</sourceDir>
+							</sourceDirs>
+						</configuration>
+					</execution>
+					<execution>
+						<id>test-compile</id>
+						<phase>process-test-sources</phase>
+						<goals>
+							<goal>test-compile</goal>
+						</goals>
+						<configuration>
+							<sourceDirs>
+								<sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+								<sourceDir>${project.basedir}/src/test/java</sourceDir>
+							</sourceDirs>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-allopen</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-noarg</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-lombok</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<executions>
+					<!-- Tryb mieszany: domyslne egzekucje javac wylaczone (phase=none), bo kotlinc
+					     musi pojsc pierwszy. Zastepuja je java-compile / java-test-compile ponizej.
+					     UWAGA: annotationProcessorPaths przeniesione 1:1, Lombok PRZED MapStructem
+					     (MapStruct czyta gettery generowane przez Lomboka - odwrotna kolejnosc
+					     wygeneruje puste mappery bez bledu kompilacji). Patrz CLAUDE.md. -->
 					<execution>
 						<id>default-compile</id>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<id>java-compile</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>compile</goal>
@@ -186,16 +293,16 @@
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
 								</path>
-                                <path>
-                                    <groupId>org.mapstruct</groupId>
-                                    <artifactId>mapstruct-processor</artifactId>
-                                    <version>1.5.5.Final</version>
-                                </path>
+								<path>
+									<groupId>org.mapstruct</groupId>
+									<artifactId>mapstruct-processor</artifactId>
+									<version>1.5.5.Final</version>
+								</path>
 							</annotationProcessorPaths>
 						</configuration>
 					</execution>
 					<execution>
-						<id>default-testCompile</id>
+						<id>java-test-compile</id>
 						<phase>test-compile</phase>
 						<goals>
 							<goal>testCompile</goal>
