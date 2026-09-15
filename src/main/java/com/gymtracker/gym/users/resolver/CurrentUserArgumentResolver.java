@@ -18,7 +18,9 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 
     @Override
     public boolean supportsParameter(MethodParameter parameter){
-        return parameter.hasParameterAnnotation(CurrentUser.class) && parameter.getParameterType().equals(Long.class);
+        Class<?> type = parameter.getParameterType();
+        return parameter.hasParameterAnnotation(CurrentUser.class)
+                && (type.equals(Long.class) || type.equals(long.class));
     }
 
     @Override
