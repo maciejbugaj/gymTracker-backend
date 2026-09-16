@@ -18,10 +18,13 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     tags-sorter: alpha
+    oauth:
+      client-id: gym-api
+      use-pkce-with-authorization-code-grant: true
   api-docs:
     path: /v3/api-docs
 
 gymtracker:
   ai:
-    enabled: true
+    enabled: false
     api-key: ${ANTHROPIC_API_KEY:}
